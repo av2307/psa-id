@@ -4,10 +4,12 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
   <title>ID Generator</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha384-oMy41mb/qJnpJlpXOF57hSu2KGi47l/UV9+tPNrBOs7/ap5Vubj/3phrCtjutHMQ" crossorigin="anonymous">
   <style>
   /*
    * Design tokens shared by every page. --ink is the dark blue the owner chose, and every other
@@ -663,6 +665,9 @@
 </style>
 
 <script>
+  if (window.top !== window.self) window.top.location.replace(window.location.href);
+</script>
+<script>
   if (new URLSearchParams(location.search).get('verify')) location.replace('verify.html' + location.search);
 </script>
 <script>
@@ -1048,9 +1053,9 @@
 
   <div class="t-toast" id="appToast" role="status"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha384-r+ljwOAhwY4/kdyzMnuBg7MEVoWpTMp5EYUDntB/E9qzNwL9dAEcNrb2XaV+mJc2" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha384-mZT2gIty7ZDdOGkxfP6joZcYdMW1Jvj9dRlfpTmaJAKKXTqzygtB22k7FLe+KZC1" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
   <script>
   // Card logos, reduced to 360 px so that their small lettering prints clearly. The originals are in assets/logos.
   const CARD_LOGOS = Object.freeze({
@@ -1146,12 +1151,16 @@
     button.disabled = isBusy;
   }
 
-  function loadScriptOnce(url) {
+  function loadScriptOnce(url, integrity) {
     const existing = document.querySelector(`script[src="${url}"]`);
     if (existing) return Promise.resolve();
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = url;
+      if (integrity) {
+        script.integrity = integrity;
+        script.crossOrigin = 'anonymous';
+      }
       script.onload = resolve;
       script.onerror = () => reject(new Error(`Could not load ${url}`));
       document.head.appendChild(script);
@@ -1535,6 +1544,7 @@
     const ZOOM_STEP = 0.1;
     const ROTATE_STEP_DEGREES = 90;
     const HEIC_CONVERTER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js';
+    const HEIC_CONVERTER_INTEGRITY = 'sha384-OTofQ0MEeiSgh62havBcemCIK0gqj809wX6UA0uPISNMRnR6NZyCdGzX3SbLrgwL';
     const HEIC_JPEG_QUALITY = 0.92;
 
     let cropper = null;
@@ -1587,7 +1597,7 @@
     async function toReadableFile(file) {
       if (!isHeicFile(file)) return file;
       showToast('Preparing the picture...');
-      await loadScriptOnce(HEIC_CONVERTER_URL);
+      await loadScriptOnce(HEIC_CONVERTER_URL, HEIC_CONVERTER_INTEGRITY);
       const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: HEIC_JPEG_QUALITY });
       return Array.isArray(converted) ? converted[0] : converted;
     }
@@ -1987,6 +1997,7 @@
     const SESSION_EXPIRED = 'Session expired';
     const SESSION_STORAGE_KEY = 'idGeneratorAdminToken';
     const HTML2PDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    const HTML2PDF_INTEGRITY = 'sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc';
 
     const state = {
       token: null,
@@ -2590,7 +2601,7 @@
       const buttons = [$('pdfButton'), $('pdfButtonPanel')];
       buttons.forEach((button) => setButtonBusy(button, true, 'Preparing...'));
       try {
-        await Promise.all([loadScriptOnce(HTML2PDF_URL), loadPhotosFor(selected), document.fonts.ready]);
+        await Promise.all([loadScriptOnce(HTML2PDF_URL, HTML2PDF_INTEGRITY), loadPhotosFor(selected), document.fonts.ready]);
         await savePdfPages(buildPdfPages(selected));
         showToast('PDF saved. Print it at 100% scale, so that the IDs come out at 54 x 85.6 mm.');
       } catch (err) {

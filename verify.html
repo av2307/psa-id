@@ -4,6 +4,8 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
   <title>ID Verification</title>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@500;600&display=swap" rel="stylesheet">
   <style>
@@ -208,6 +210,9 @@
     .message-screen .icon { display: block; width: 34px; height: 34px; margin: 0 auto 14px; }
     .message-screen.is-error { color: var(--danger); }
   </style>
+<script>
+  if (window.top !== window.self) window.top.location.replace(window.location.href);
+</script>
 <script>
   /* Stands in for google.script.run, which only exists on pages served by Apps Script. */
   (() => {
