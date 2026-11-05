@@ -211,7 +211,7 @@
 <script>
   /* Stands in for google.script.run, which only exists on pages served by Apps Script. */
   (() => {
-    const API_URL = "https://script.google.com/macros/s/AKfycbyX2bhIOviFAZ3jpqFYmYDAjG1rjmjXvXj7Q2vcoFy3poZ6DtSyiaWBj3GkxIcEoa_Asw/exec";
+    const API_URL = "http://localhost:8773/exec";
 
     async function callApi(fn, args) {
       const response = await fetch(API_URL, {
@@ -368,7 +368,7 @@
           </div>
         </div>
         <div class="facts">
-          ${renderFact(['REVOKED', 'LOST'].includes(record.status) ? 'Printed expiry date' : 'Valid until', record.validUntil)}
+          ${['REVOKED', 'LOST'].includes(record.status) ? '' : renderFact('Valid until', record.validUntil)}
           ${renderFact('Date of birth', record.dob)}
           ${renderFact('Address', record.address)}
         </div>`;

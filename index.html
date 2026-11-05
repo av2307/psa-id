@@ -668,7 +668,7 @@
 <script>
   /* Stands in for google.script.run, which only exists on pages served by Apps Script. */
   (() => {
-    const API_URL = "https://script.google.com/macros/s/AKfycbyX2bhIOviFAZ3jpqFYmYDAjG1rjmjXvXj7Q2vcoFy3poZ6DtSyiaWBj3GkxIcEoa_Asw/exec";
+    const API_URL = "http://localhost:8773/exec";
 
     async function callApi(fn, args) {
       const response = await fetch(API_URL, {
@@ -1801,7 +1801,7 @@
 
       showResultBox({
         title: response.isPending ? 'Waiting for admin approval' : RESULT_TITLES[response.type],
-        message: response.idNumber ? 'Please take note of this number.' : response.message,
+        message: response.idNumber ? '' : response.message,
         markClass: isDone ? 'is-done' : 'is-waiting',
         icon: isDone ? '' : 'clock',
         number: response.idNumber,
@@ -1809,7 +1809,7 @@
       });
 
       sideTabs.select('front');
-      const parts = [$('resultTitle'), $('resultMessage'), ...(response.idNumber ? [$('resultNumber')] : []), $('resultAgainButton')];
+      const parts = [$('resultTitle'), $('resultMessage'), $('resultNumber'), $('resultAgainButton')].filter((part) => !part.hidden);
       Motion.revealResult($('cardFlip'), parts);
       if (isDone) $('resultCheck').dataset.state = 'in';
     }
