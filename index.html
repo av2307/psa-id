@@ -1861,15 +1861,19 @@
       }
     }
 
-    /** The details are saved by now. This keeps checking until the ID number is ready, or returns null. */
-    async function waitForResult(id) {
+    /**
+     * The details are saved by now. This keeps checking until the ID number is ready, or returns null.
+     * If the server no longer has them, the page still does, so it sends them again.
+     */
+    async function waitForResult(id, payload) {
       const started = Date.now();
       let delay = CHECK_FIRST_MS;
       for (let check = 1; Date.now() - started < LONGEST_WAIT_MS; check++) {
         await wait(delay + Math.random() * RANDOM_SPREAD_MS);
         delay = Math.min(delay * CHECK_GROWTH, CHECK_LONGEST_MS);
         try {
-          const response = await callServer('checkSubmission', id, check % CHECKS_PER_TAB_READ === 0);
+          let response = await callServer('checkSubmission', id, check % CHECKS_PER_TAB_READ === 0);
+          if (response.isMissing) response = await callServer('submitIdForm', Object.assign({}, payload, { isRetry: true }));
           if (!response.isWaiting && !response.canRetry) return response;
         } catch (err) {
           // A missed check is harmless. The next one follows shortly.
@@ -1918,7 +1922,7 @@
         setButtonBusy(button, false);
         if (response.isWaiting) {
           showWaitingForNumber();
-          response = await waitForResult(submissionId);
+          response = await waitForResult(submissionId, payload);
         }
         if (!response) {
           showStillWaiting();
