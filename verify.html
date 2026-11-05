@@ -211,7 +211,7 @@
 <script>
   /* Stands in for google.script.run, which only exists on pages served by Apps Script. */
   (() => {
-    const API_URL = "http://localhost:8773/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyX2bhIOviFAZ3jpqFYmYDAjG1rjmjXvXj7Q2vcoFy3poZ6DtSyiaWBj3GkxIcEoa_Asw/exec";
 
     async function callApi(fn, args) {
       const response = await fetch(API_URL, {
